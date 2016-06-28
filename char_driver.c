@@ -20,7 +20,7 @@ int ret;
 dev_t dev_num;
 
 int device_open(struct inode * inode, struct file *filp){
-	if(down_interruptible(&virtual_device.sem) != 0){
+	if(down_interruptible(&fake_device.sem) != 0){
 		printk(KERN_ALERT "Could not lock device during open\n");
 		return -1;
 	}
@@ -28,10 +28,27 @@ int device_open(struct inode * inode, struct file *filp){
 	printk(KERN_INFO "Device opened\n");
 	return 0;
 }
+
 ssize_t device_read(struct file * filp, char * buffer_store_data, size_t buffer_count, loff_t * cur_offset){
+	
 	printk(KERN_INFO "Reading from device\n");
+	ret = copy_to_user(buffer_store_data, fake_device.data, buffer_count);
+	return ret;
 }
 
+ssize_t device_write(struct file * filp, const char * buffer_store_data, size_t buffer_count, loff_t * cur_offset){
+	
+	printk(KERN_INFO "Writing to device\n");
+	ret = copy_from_user(fake_device.data, buffer_store_data, buffer_count);
+	return ret;
+}
+
+ssize_t device_close(struct inode *inode, struct file * filp){
+	
+	up(&fake_device.sem);
+	printk(KERN_INFO "Device closed\n");
+	return 0;
+}
 
 int device_close(){
 
@@ -65,39 +82,19 @@ static int driver_entry(void){
 		return ret;
 	}
 
-	sema_init(&virtual_device.sem, 1);
+	sema_init(&fake_device.sem, 1);
 
 	return 0;
 }
 
+static void driver_exit(void){
+	
+	cdev_del(mcdev);
+	
+	unregister_chrdev_region(dev_num, 1);
+	printk(KERN_ALERT "Unloaded module\n");
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+module_init(driver_entry);
+module_exit(driver_exit);
 
