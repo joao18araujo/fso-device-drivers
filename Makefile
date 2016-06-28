@@ -1,7 +1,6 @@
 obj-m := char_driver.o
 
-KERNEL_DIR =i /usr/src/linux-headers-$(shell uname -r)
-PWD = $(shell pwd)
+KERNEL_DIR = /usr/src/linux-headers-$(shell uname -r)
 
 all:
 	$(MAKE) -C $(KERNEL_DIR) SUBDIRS=$(PWD) modules
