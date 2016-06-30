@@ -23,7 +23,7 @@ static int device_open(struct inode *inode, struct file *file){
 
 	device_opened = TRUE;
 
-	sprintf(msg, "Fui aberto %d vezes e estou limpo, juro!!!\n", counter++);
+	sprintf(msg, "Infected device, opened %d times\n", counter++);
 	msg_ptr = msg;
 	try_module_get(THIS_MODULE);
 
