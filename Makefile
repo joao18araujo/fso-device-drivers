@@ -15,6 +15,7 @@ remove:
 		sudo rmmod chardev
 
 run:
+		sudo chmod 777 /dev/chardev
 		g++ -W -Wall -ansi -pedantic -o prog test_drive.c
 		./prog $(cpf)
 
